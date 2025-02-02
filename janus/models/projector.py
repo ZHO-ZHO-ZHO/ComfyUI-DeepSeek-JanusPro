@@ -18,11 +18,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from typing import Tuple, Union
-
 import torch
 import torch.nn as nn
-from attrdict import AttrDict
-
+from types import SimpleNamespace  # 替换为Python标准库
 
 class MlpProjector(nn.Module):
     def __init__(self, cfg):
@@ -63,19 +61,7 @@ class MlpProjector(nn.Module):
     def forward(
         self, x_or_tuple: Union[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]
     ):
-        """
-
-        Args:
-            x_or_tuple (Union[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]:  if it is a tuple of torch.Tensor,
-                then it comes from the hybrid vision encoder, and x = high_res_x, low_res_x);
-                otherwise it is the feature from the single vision encoder.
-
-        Returns:
-            x (torch.Tensor): [b, s, c]
-        """
-
         if isinstance(x_or_tuple, tuple):
-            # self.cfg.projector_type == "low_high_hybrid_split_mlp_gelu":
             high_x, low_x = x_or_tuple
             high_x = self.high_up_proj(high_x)
             low_x = self.low_up_proj(low_x)
@@ -85,16 +71,17 @@ class MlpProjector(nn.Module):
 
         return self.layers(x)
 
-
 if __name__ == "__main__":
-    cfg = AttrDict(
+    # 修改测试代码中的字典初始化方式
+    cfg = SimpleNamespace(
         input_dim=1024,
         n_embed=2048,
         depth=2,
         projector_type="low_high_hybrid_split_mlp_gelu",
     )
+    
     inputs = (torch.rand(4, 576, 1024), torch.rand(4, 576, 1024))
 
     m = MlpProjector(cfg)
     out = m(inputs)
-    print(out.shape)
+    print(out.shape)  # 应该输出 torch.Size([4, 576, 2048])
