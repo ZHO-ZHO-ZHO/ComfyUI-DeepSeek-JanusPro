@@ -18,7 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import torch
-from attrdict import AttrDict
+from types import SimpleNamespace  # 替换为Python标准库
 from einops import rearrange
 from transformers import (
     AutoConfig,
@@ -70,10 +70,11 @@ def model_name_to_cls(cls_name):
     return cls
 
 
+# 所有配置类统一修改方案
 class VisionConfig(PretrainedConfig):
     model_type = "vision"
     cls: str = ""
-    params: AttrDict = {}
+    params: SimpleNamespace = SimpleNamespace()  # 类型注解修改
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -82,13 +83,12 @@ class VisionConfig(PretrainedConfig):
         if not isinstance(self.cls, str):
             self.cls = self.cls.__name__
 
-        self.params = AttrDict(kwargs.get("params", {}))
-
+        self.params = SimpleNamespace(**kwargs.get("params", {}))  # 实例化方式修改
 
 class AlignerConfig(PretrainedConfig):
     model_type = "aligner"
     cls: str = ""
-    params: AttrDict = {}
+    params: SimpleNamespace = SimpleNamespace()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -97,13 +97,12 @@ class AlignerConfig(PretrainedConfig):
         if not isinstance(self.cls, str):
             self.cls = self.cls.__name__
 
-        self.params = AttrDict(kwargs.get("params", {}))
-
+        self.params = SimpleNamespace(**kwargs.get("params", {}))
 
 class GenVisionConfig(PretrainedConfig):
     model_type = "gen_vision"
     cls: str = ""
-    params: AttrDict = {}
+    params: SimpleNamespace = SimpleNamespace()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -112,13 +111,12 @@ class GenVisionConfig(PretrainedConfig):
         if not isinstance(self.cls, str):
             self.cls = self.cls.__name__
 
-        self.params = AttrDict(kwargs.get("params", {}))
-
+        self.params = SimpleNamespace(**kwargs.get("params", {}))
 
 class GenAlignerConfig(PretrainedConfig):
     model_type = "gen_aligner"
     cls: str = ""
-    params: AttrDict = {}
+    params: SimpleNamespace = SimpleNamespace()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -127,13 +125,12 @@ class GenAlignerConfig(PretrainedConfig):
         if not isinstance(self.cls, str):
             self.cls = self.cls.__name__
 
-        self.params = AttrDict(kwargs.get("params", {}))
-
+        self.params = SimpleNamespace(**kwargs.get("params", {}))
 
 class GenHeadConfig(PretrainedConfig):
     model_type = "gen_head"
     cls: str = ""
-    params: AttrDict = {}
+    params: SimpleNamespace = SimpleNamespace()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -142,7 +139,7 @@ class GenHeadConfig(PretrainedConfig):
         if not isinstance(self.cls, str):
             self.cls = self.cls.__name__
 
-        self.params = AttrDict(kwargs.get("params", {}))
+        self.params = SimpleNamespace(**kwargs.get("params", {}))
 
 
 class MultiModalityConfig(PretrainedConfig):
