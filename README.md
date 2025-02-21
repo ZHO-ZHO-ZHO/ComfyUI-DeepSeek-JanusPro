@@ -1,3 +1,7 @@
+
+![ComfyUI DeepSeek JanusPro 封面图](https://github.com/user-attachments/assets/9f8ef93e-067c-42af-9eaf-d0f0fbd427c4)
+
+
 # ComfyUI-DeepSeek-JanusPro（项目说明+细节还在完善中，代码已经可以使用）
 
 <img width="1101" alt="截屏2025-01-30 02 06 33" src="https://github.com/user-attachments/assets/defb2260-25af-4c5c-a534-c948a055b456" />
@@ -43,6 +47,8 @@ DeepSeek R1 自己给自己的 JanusPro 成功写好 ComfyUI 插件（我没写�
 
 
 ## 更新日志
+
+- 20250221 新增封面图，并将会合并到新的大项目中：[DeepSeek|All-In-One|ComfyUI](https://github.com/ZHO-ZHO-ZHO/ComfyUI-DeepSeek-All-In-One)
 
 - 20250130（大年初二）
 
