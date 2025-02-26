@@ -26,6 +26,20 @@ except ImportError as e:
 current_directory = os.path.dirname(os.path.abspath(__file__))
 folder_paths.folder_names_and_paths["Janus"] = ([os.path.join(folder_paths.models_dir, "Janus")], folder_paths.supported_pt_extensions)
 
+GPU_ARCHITECTURE_CUDA = "cuda"
+GPU_ARCHITECTURE_MPS = "mps"
+GPU_ARCHITECTURE_CPU = "cpu"
+gpu_architecture = None
+
+if torch.cuda.is_available():
+    gpu_architecture = GPU_ARCHITECTURE_CUDA
+elif torch.mps.is_available() :
+    gpu_architecture = GPU_ARCHITECTURE_MPS
+else :
+    gpu_architecture = GPU_ARCHITECTURE_CPU
+
+device = torch.device(gpu_architecture)
+
 # 辅助函数
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
@@ -61,10 +75,7 @@ class Janus_ModelLoader:
             model_path,
             language_config=language_config,
             trust_remote_code=True
-        ).to(torch.bfloat16 if torch.cuda.is_available() else torch.float16)
-        
-        if torch.cuda.is_available():
-            vl_gpt = vl_gpt.cuda()
+        ).to(torch.bfloat16 if gpu_architecture == GPU_ARCHITECTURE_CUDA or gpu_architecture == GPU_ARCHITECTURE_MPS else torch.float16).to(device).eval()
 
         # 加载处理器
         processor = VLChatProcessor.from_pretrained(model_path)
@@ -100,7 +111,7 @@ class Janus_MultimodalUnderstanding:
         # 修复种子范围问题
         seed = seed % (2**32)
         
-        # 设置随机种子（添加CUDA同步）
+        # 设置随机种子（添加CUDA同步）Works with MPS
         torch.manual_seed(seed)
         np.random.seed(seed % (2**32 - 1))  # 适配numpy种子范围
         if torch.cuda.is_available():
@@ -138,7 +149,7 @@ class Janus_MultimodalUnderstanding:
                     conversations=conversation,
                     images=[pil_image],
                     force_batchify=True
-                ).to(model.device, dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float16)
+                ).to(model.device, dtype=torch.bfloat16 if gpu_architecture == GPU_ARCHITECTURE_CUDA or gpu_architecture == GPU_ARCHITECTURE_MPS else torch.float16)
                 
                 print(f"输入张量形状 - input_ids: {prepare_inputs.input_ids.shape}")
                 print(f"注意力掩码形状: {prepare_inputs.attention_mask.shape}")
@@ -215,6 +226,7 @@ class Janus_ImageGeneration:
     def generate(self, model, processor, tokenizer, prompt, seed, cfg_weight, temperature):
         # 清理缓存并设置种子
         torch.cuda.empty_cache()
+        torch.mps.empty_cache()
         seed = seed % (2**32)
         torch.manual_seed(seed)
         np.random.seed(seed)
